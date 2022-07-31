@@ -2,3 +2,4 @@
 #added order model
 #added get order
 #switching dbs mysql to mongodb
+#added get and post product schema

@@ -9,14 +9,17 @@ class Product {
   }
   save(){
     const db = getDb()
-    db.collection('products').insertOne(this)
-    .then(result => {
-      console.log(result)
-    })
-    .catch(err => { 
-      console.log(err)
-      throw err
-    })
+    return db
+      .collection('products')
+      .insertOne(this)
+      .then(result => {
+        console.log(result)
+      })
+      .catch(err => { 
+        console.log(err)
+        throw err
+      })
   }
 }
-    module.exports = Product
+
+module.exports = Product
