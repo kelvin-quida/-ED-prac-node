@@ -1,6 +1,5 @@
 const mongodb = require('mongodb')
 const MongoClient = mongodb.MongoClient
-require('dotenv').config()
 
 let _db
 let pass = process.env.MY_PASS
