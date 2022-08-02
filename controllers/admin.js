@@ -1,4 +1,20 @@
 const Product = require('../models/product');
+const mongodb = require('mongodb')
+
+const ObjectId = mongodb.ObjectId
+
+exports.getProducts = (req, res, next) => {
+  Product
+  .fetchAll()
+  .then(products => {
+    res.render('admin/products', {
+      prods: products,
+      pageTitle: 'Admin Products',
+      path: '/admin/products'
+    });
+  })
+  .catch(err => console.log(err))
+};
 
 exports.getAddProduct = (req, res, next) => {
   res.render('admin/edit-product', {
@@ -49,11 +65,18 @@ exports.getEditProduct = (req, res, next) => {
 };
 
 exports.postEditProduct = (req, res, next) => {
+  const prodId = req.body.productId
   const updatedTitle = req.body.title;
   const updatedPrice = req.body.price;
   const updatedImageUrl = req.body.imageUrl;
   const updatedDesc = req.body.description;
-  const product = new Product(updatedTitle,updatedPrice,updatedImageUrl,updatedDesc)
+  const product = new Product(
+    updatedTitle,
+    updatedPrice,
+    updatedImageUrl,
+    updatedDesc,
+    new ObjectId(prodId)
+  )
   product
     .save()
     .then(result => {
@@ -63,31 +86,16 @@ exports.postEditProduct = (req, res, next) => {
     .catch(err => console.log(err))
 };
 
-exports.getProducts = (req, res, next) => {
+exports.postDeleteProduct = (req, res, next) => {
+  const prodId = req.body.productId;
   Product
-  .fetchAll()
-  .then(products => {
-    res.render('admin/products', {
-      prods: products,
-      pageTitle: 'Admin Products',
-      path: '/admin/products'
-    });
-  })
-  .catch(err => console.log(err))
+    .deleteById(prodId)
+    .then(result => {
+      console.log("SUCCESSFULLY DESTROYED")
+      res.redirect("/admin/products")
+    })
+    .catch(err => {
+      console.log(err)
+    })
+  res.redirect('/admin/products');
 };
-
-// exports.postDeleteProduct = (req, res, next) => {
-//   const prodId = req.body.productId;
-//   Product.findByPk(prodId)
-//     .then(product => {
-//       return product.destroy()
-//     })
-//     .then(result => {
-//       console.log("SUCCESSFULLY DESTROYED")
-//       res.redirect("/admin/products")
-//     })
-//     .catch(err => {
-//       console.log(err)
-//     })
-//   res.redirect('/admin/products');
-// };
