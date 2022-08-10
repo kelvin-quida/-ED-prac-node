@@ -1,5 +1,8 @@
 import { default as mongodb } from 'mongodb';
+import dotenv from 'dotenv'
 let MongoClient = mongodb.MongoClient;
+
+dotenv.config()
 
 let _db
 let pass = process.env.MY_PASS
