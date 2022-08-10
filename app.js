@@ -1,17 +1,13 @@
 import express from 'express';
 import bodyParser from 'body-parser'
-import dotenv from 'dotenv'
 import path from 'path'
 
 import adminRoutes from './routes/admin.js'
 import shopRoutes from './routes/shop.js'
 
 import {get404} from './controllers/error.js'
-import {mongoConnect,getDb} from './util/database.js'
+import {mongoConnect} from './util/database.js'
 import User from './models/user.js'
-
-
-dotenv.config()
 
 const app = express()
 const __dirname = path.resolve();
@@ -38,7 +34,6 @@ app.use(shopRoutes);
 app.use(get404);
 
 mongoConnect(() => {
-    console.log('here')
     app.listen(3000)
 })
  

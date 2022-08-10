@@ -1,14 +1,13 @@
-import { default as mongodb } from 'mongodb';
+import  mongodb from 'mongodb';
 import dotenv from 'dotenv'
 let MongoClient = mongodb.MongoClient;
 
 dotenv.config()
 
 let _db
-let pass = process.env.MY_PASS
 
 export const mongoConnect = callback => {
-    MongoClient.connect(`mongodb+srv://Armit4ge:${pass}@cluster0.t3haj.mongodb.net/shop?retryWrites=true&w=majority`)
+    MongoClient.connect(`mongodb+srv://${process.env.MY_USER}:${process.env.MY_PASS}@cluster0.t3haj.mongodb.net/shop?retryWrites=true&w=majority`)
     .then(client => {
         console.log("Connected")
         _db = client.db()
@@ -24,5 +23,5 @@ export const getDb = () => {
     if(_db){
         return _db
     }
-    console.log('n')
+    console.log('NOT FOUND DB')
 }
