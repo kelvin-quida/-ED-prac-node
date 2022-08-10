@@ -1,7 +1,7 @@
-const Product = require('../models/product');
-const Order = require('../models/order');
+import Product from '../models/product.js'
+// import Order from '../models/order'
 
-exports.getProducts = (req, res, next) => {
+export const getProducts = (req, res, next) => {
   Product.fetchAll()
   .then(products => {
     res.render('shop/product-list', {
@@ -13,7 +13,7 @@ exports.getProducts = (req, res, next) => {
   .catch(err => {console.log(err)})
 }
 
-exports.getProduct = (req, res, next) => {
+export const getProduct = (req, res, next) => {
   const prodId = req.params.productId;
   Product.findById(prodId)
     .then((product) => {
@@ -26,7 +26,7 @@ exports.getProduct = (req, res, next) => {
     .catch(err => console.log(err))
 };
 
-exports.getIndex = (req, res, next) => {
+export const getIndex = (req, res, next) => {
   Product.fetchAll()
   .then(products => {
     res.render('shop/index', {
@@ -38,26 +38,38 @@ exports.getIndex = (req, res, next) => {
   .catch(err => {console.log(err)})
 }
 
-// exports.getCart = (req, res, next) => {
-//   req.user
-//     .getCart()
-//     .then(i => {
-//       return i
-//         .getProducts()
-//         .then( products => {
-//           res.render('shop/cart', {
-//               path: '/cart',
-//               pageTitle: 'Your Cart',
-//               products: products
-//             })
-//         })
-//         .catch(err => console.log(err))
-//     })
-//     .catch(err => console.log(err))
-// };
+export const getCart = (req, res, next) => {
+  req.user
+    .getCart()
+    .then(i => {
+      return i
+        .getProducts()
+        .then( products => {
+          res.render('shop/cart', {
+              path: '/cart',
+              pageTitle: 'Your Cart',
+              products: products
+            })
+        })
+        .catch(err => console.log(err))
+    })
+    .catch(err => console.log(err))
+};
 
-// exports.postCart = (req, res, next) => {
-//   const prodId = req.body.productId;
+export const postCart = (req, res, next) => {
+  const prodId = req.body.productId;
+  Product
+    .findById(prodId)
+    .then(result => {
+      return req.user.addToCart(result)
+    })
+    .then(res => {
+      console.log(res)
+    })
+    .catch(err => {
+      console.log(err)
+    })
+}
 //   let fetchedCart
 //   let newQuantity = 1
 //   req.user

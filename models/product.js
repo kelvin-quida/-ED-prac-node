@@ -1,11 +1,11 @@
-const mongodb = require('mongodb')
-const getDb = require('../util/database').getDb
+import mongodb from 'mongodb'
+import {getDb} from '../util/database.js'
 
 class Product {
-  constructor(title,price,imageUrl,description,id){
+  constructor(title,imageUrl,price,description,id){
     this.title = title
-    this.price = price
     this.imageUrl = imageUrl
+    this.price = price
     this.description = description
     this._id = id
   }
@@ -68,4 +68,4 @@ class Product {
   }
 }
 
-module.exports = Product
+export default Product

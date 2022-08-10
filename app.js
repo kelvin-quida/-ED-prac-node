@@ -1,39 +1,42 @@
-const path = require('path');
-const express = require('express');
+import express from 'express';
+import bodyParser from 'body-parser'
+import dotenv from 'dotenv'
+
+import adminRoutes from './routes/admin.js'
+import shopRoutes from './routes/shop.js'
+
+import {get404} from './controllers/error.js'
+import {mongoConnect,getDb} from './util/database.js'
+import User from './models/user.js'
+
+
+dotenv.config()
+
 const app = express()
-const bodyParser = require('body-parser');
-
-require('dotenv').config()
-
-const errorController = require('./controllers/error');
-const mongoConnect = require('./util/database').mongoConnect
-const User = require('./models/user')
 
 app.set('view engine', 'ejs');
 app.set('views', 'views');
-
-const adminRoutes = require('./routes/admin');
-const shopRoutes = require('./routes/shop');
  
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use((req,res,next) => {
-    User.findById('62ee70a0bd693608ed1726f4')
-    .then(user => {
-        req.user = user
-        next()
-    })
-    .catch(err => console.log(err))
-    next()
-}) 
+    User
+        .findById('62ee70a0bd693608ed1726f4')
+        .then(user => {
+            req.user = new User(user.name, user.email,user.cart,user._id)
+            next()
+        })
+        .catch(err => console.log(err))
+    }) 
 
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 
-app.use(errorController.get404);
+app.use(get404());
 
 mongoConnect(() => {
+    console.log('here')
     app.listen(3000)
 })
  
