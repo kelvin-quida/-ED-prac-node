@@ -1,4 +1,4 @@
-import mongodb from 'mongodb'
+import mongodb, { ObjectId } from 'mongodb'
 import { getDb } from '../util/database.js'
 
 class User{
@@ -20,12 +20,31 @@ class User{
     }
 
     addToCart(product){
-        const updateCart = {items:[{...product,quantity:1}]}
+        const cartProduct = this.cart.items.findIndex(cp => {
+            return cp.productId.toString() == product._id.toString()
+        })
+
+        let newQuantity = 1
+        const updateCartItems = [...this.cart.items]
+
+        if(cartProduct >= 0){
+            newQuantity = this.cart.items[cartProduct].quantity+1
+            updateCartItems[cartProduct].quantity = newQuantity
+        }else{
+            updateCartItems.push({
+                productId: new ObjectId(product._id),
+                quantity: newQuantity
+            })
+        }
+
+        const updateCart = {
+            items:[{productId: new ObjectId(product._id),quantity:newQuantity}]
+        }
         const db = getDb()
         return db
             .collection('users')
             .updateOne(
-                {_id: new mongodb.ObjectId(this.id)},
+                {_id: new ObjectId(this._id)},
                 {$set:{cart:updateCart}}
             )
             .then(result => {
