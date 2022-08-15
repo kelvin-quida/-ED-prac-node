@@ -1,4 +1,4 @@
-import mongodb from 'mongodb'
+import mongodb, { ObjectId } from 'mongodb'
 import {getDb} from '../util/database.js'
 
 class Product {
@@ -58,9 +58,14 @@ class Product {
     const db = getDb()
     return db
       .collection('products')
-      .deleteOne({_id:new mongodb.ObjectId(prodId)})
+      .deleteOne({_id:new ObjectId(prodId)})
       .then(result => {
-        console.log(result)
+        return db
+          .collection('users')
+          .updateOne(
+            {_id:new ObjectId(userId)},
+            {$pull:{'cart.items':{productId: new ObjectId(prodId)}}}
+          )
       })
       .catch(err => {
         console.log(err)
