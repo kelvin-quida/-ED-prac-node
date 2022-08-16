@@ -1,16 +1,19 @@
 import express from 'express';
 import bodyParser from 'body-parser'
 import path from 'path'
+import dotenv from 'dotenv'
+import mongoose from 'mongoose';
 
 import adminRoutes from './routes/admin.js'
 import shopRoutes from './routes/shop.js'
 
 import {get404} from './controllers/error.js'
-import {mongoConnect} from './util/database.js'
 import User from './models/user.js'
 
 const app = express()
 const __dirname = path.resolve();
+
+dotenv.config()
 
 app.set('view engine', 'ejs');
 app.set('views', 'views');
@@ -33,7 +36,11 @@ app.use(shopRoutes);
 
 app.use(get404);
 
-mongoConnect(() => {
-    app.listen(3000)
-})
- 
+mongoose
+    .connect(`mongodb+srv://${process.env.MY_USER}:${process.env.MY_PASS}@cluster0.t3haj.mongodb.net/shop?retryWrites=true&w=majority`)
+    .then(result => {
+        app.listen(3000)
+    })
+    .catch(err => {
+        console.log(err)
+    })

@@ -1,5 +1,4 @@
 import Product from '../models/product.js'
-import { getDb } from '../util/database.js';
 // import Order from '../models/order'
 
 export const getProducts = (req, res, next) => {
