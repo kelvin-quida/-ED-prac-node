@@ -1,8 +1,6 @@
 import Product from '../models/product.js';
 import mongodb from 'mongodb'
 
-const ObjectId = mongodb.ObjectId
-
 export const getProducts = (req, res, next) => {
   Product
   .find({})
@@ -75,15 +73,16 @@ export const postEditProduct = (req, res, next) => {
   const updatedPrice = req.body.price;
   const updatedImageUrl = req.body.imageUrl;
   const updatedDesc = req.body.description;
-  const product = new Product(
-    updatedTitle,
-    updatedPrice,
-    updatedImageUrl,
-    updatedDesc,
-    new ObjectId(prodId)
-  )
-  product
-    .save()
+  
+  Product
+    .findByIdAndUpdate(prodId,{
+      $set:{
+        title:updatedTitle,
+        price:updatedPrice,
+        imageUrl:updatedImageUrl,
+        description:updatedDesc  
+      }
+    })
     .then(result => {
       console.log("SUCCESSFULLY UPDATED!")
       res.redirect('/admin/products');
@@ -94,13 +93,12 @@ export const postEditProduct = (req, res, next) => {
 export const postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
   Product
-    .deleteById(prodId)
+    .deleteOne({_id:prodId})
     .then(result => {
       console.log("SUCCESSFULLY DESTROYED")
-      res.redirect("/admin/products")
+      return res.redirect("/admin/products")
     })
     .catch(err => {
       console.log(err)
     })
-  res.redirect('/admin/products');
 };
