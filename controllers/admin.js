@@ -3,8 +3,11 @@ import mongodb from 'mongodb'
 
 export const getProducts = (req, res, next) => {
   Product
-  .find({})
+  .find()
+  // .select('title price')
+  // .populate('userId','name')
   .then(products => {
+    console.log(products)
     res.render('admin/products', {
       prods: products,
       pageTitle: 'Admin Products',
@@ -31,7 +34,8 @@ export const postAddProduct = (req, res, next) => {
     title:title,
     price:price,
     description:description,
-    imageUrl:imageUrl
+    imageUrl:imageUrl,
+    userId:req.user,
   })
   product
   .save()

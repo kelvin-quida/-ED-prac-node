@@ -1,3 +1,32 @@
+import mongoose from 'mongoose'
+
+const {Schema} = mongoose
+
+const userSchema = new Schema({
+    name:{
+        type:String,
+        required:true
+    },
+    email:{
+        type:String,
+        required:true
+    },
+    cart:{
+        items:[
+            {
+                productId:{
+                    type:Schema.Types.ObjectId,
+                    ref:'Product',
+                    required:true
+                },
+                quantity:{type:Number, required:true}
+            }
+        ]
+    }
+})
+
+export default mongoose.model('User',userSchema)
+
 // import mongodb, { ObjectId } from 'mongodb'
 // import { getDb } from '../util/database.js'
 
