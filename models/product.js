@@ -1,17 +1,28 @@
-// import mongoose from "mongoose";
+import mongoose from "mongoose";
 
-// const Schema = mongoose.Schema
+const {Schema} = mongoose
 
-// const productSchema = new Schema({
-//   title:{
-//     type:String,
-//     required:true
-//   },
-//   price:{
-//     type:Number,
-//     required:true
-//   },
-// })
+const productSchema = new Schema({
+  title:{
+    type:String,
+    required:true
+  },
+  price:{
+    type:Number,
+    required:true
+  },
+  description:{
+    type:String,
+    required:true
+  },
+  imageUrl:{
+    type:String,
+    required:true
+  }
+})
+
+export default mongoose.model('Product',productSchema)
+
 
 // import mongodb, { ObjectId } from 'mongodb'
 // import {getDb} from '../util/database.js'

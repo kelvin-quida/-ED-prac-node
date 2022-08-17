@@ -2,7 +2,7 @@ import Product from '../models/product.js'
 // import Order from '../models/order'
 
 export const getProducts = (req, res, next) => {
-  Product.fetchAll()
+  Product.find()
   .then(products => {
     res.render('shop/product-list', {
       prods: products,
@@ -27,7 +27,7 @@ export const getProduct = (req, res, next) => {
 };
 
 export const getIndex = (req, res, next) => {
-  Product.fetchAll()
+  Product.find()
   .then(products => {
     res.render('shop/index', {
       prods: products,

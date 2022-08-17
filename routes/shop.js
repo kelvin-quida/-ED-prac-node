@@ -3,7 +3,7 @@ import { getIndex, getProducts,getProduct,postCart, getCart,postCartDeleteProduc
 
 const router = Router()
 
-// router.get('/', getIndex);
+router.get('/', getIndex);
 
 // router.get('/products', getProducts);
 
