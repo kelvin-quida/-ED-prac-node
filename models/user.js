@@ -25,10 +25,51 @@ const userSchema = new Schema({
     }
 })
 
-export default mongoose.model('User',userSchema)
+const method = userSchema.methods
 
-// import mongodb, { ObjectId } from 'mongodb'
-// import { getDb } from '../util/database.js'
+method.getCart = function(){
+    const db = getDb()
+
+    const productsIds = []
+    const quantities = {}
+
+    this.cart.items.forEach(element => {
+        let prodId = element.productId
+
+        productsIds.push(prodId)
+        quantities[prodId] = element.quantity
+    });
+
+    return db
+        .collection('products')
+        .find({_id:{$in: productsIds}})
+        .toArray()
+        .then(products => {
+            return products.map(p => {
+                return {...p,quantity:quantities[p._id]}
+            })
+        })
+}
+
+method.addToCart = function(product){
+    const cartProduct = this.cart.items.findIndex(cp => {
+        return cp.productId.toString() == product._id.toString()
+    })
+
+    const updateCartItems = this.cart.items
+
+    if(cartProduct >= 0){
+        ++updateCartItems[cartProduct].quantity 
+    }else{
+        updateCartItems.push({
+            productId: product._id,
+            quantity: 1
+        })
+    }
+    return this.save()
+}
+
+export default mongoose.model('User',userSchema)
 
 // class User{
 //     constructor(name,email,cart,id){
@@ -48,23 +89,6 @@ export default mongoose.model('User',userSchema)
 //             .catch(err => console.log(err))
 //     }
 
-//     addToCart(product){
-//         const cartProduct = this.cart.items.findIndex(cp => {
-//             return cp.productId.toString() == product._id.toString()
-//         })
-
-//         let newQuantity = 1
-//         const updateCartItems = [...this.cart.items]
-
-//         if(cartProduct >= 0){
-//             newQuantity = this.cart.items[cartProduct].quantity+1
-//             updateCartItems[cartProduct].quantity = newQuantity
-//         }else{
-//             updateCartItems.push({
-//                 productId: new ObjectId(product._id),
-//                 quantity: newQuantity
-//             })
-//         }
 
 //         const db = getDb()
 //         return db
@@ -82,29 +106,6 @@ export default mongoose.model('User',userSchema)
 //             })
 //     }
 
-//     getCart(){
-//         const db = getDb()
-
-//         const productsIds = []
-//         const quantities = {}
-
-//         this.cart.items.forEach(element => {
-//             let prodId = element.productId
-
-//             productsIds.push(prodId)
-//             quantities[prodId] = element.quantity
-//         });
-
-//         return db
-//             .collection('products')
-//             .find({_id:{$in: productsIds}})
-//             .toArray()
-//             .then(products => {
-//                 return products.map(p => {
-//                     return {...p,quantity:quantities[p._id]}
-//                 })
-//             })
-//     }
 
 //     deleteItemfromCart(productId){
 //         const updatedCartItems = this.cart.items.filter(item => {
