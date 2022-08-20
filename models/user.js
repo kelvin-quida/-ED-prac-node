@@ -27,29 +27,29 @@ const userSchema = new Schema({
 
 const method = userSchema.methods
 
-method.getCart = function(){
-    const db = getDb()
+// method.getCart = function(){
+//     const db = getDb()
 
-    const productsIds = []
-    const quantities = {}
+//     const productsIds = []
+//     const quantities = {}
 
-    this.cart.items.forEach(element => {
-        let prodId = element.productId
+//     this.cart.items.forEach(element => {
+//         let prodId = element.productId
 
-        productsIds.push(prodId)
-        quantities[prodId] = element.quantity
-    });
+//         productsIds.push(prodId)
+//         quantities[prodId] = element.quantity
+//     });
 
-    return db
-        .collection('products')
-        .find({_id:{$in: productsIds}})
-        .toArray()
-        .then(products => {
-            return products.map(p => {
-                return {...p,quantity:quantities[p._id]}
-            })
-        })
-}
+//     return db
+//         .collection('products')
+//         .find({_id:{$in: productsIds}})
+//         .toArray()
+//         .then(products => {
+//             return products.map(p => {
+//                 return {...p,quantity:quantities[p._id]}
+//             })
+//         })
+// }
 
 method.addToCart = function(product){
     const cartProduct = this.cart.items.findIndex(cp => {
@@ -68,6 +68,29 @@ method.addToCart = function(product){
     }
     return this.save()
 }
+
+method.deleteItemfromCart = function(productId) {
+    const updatedCartItems = this.cart.items.filter(item => {
+        return item.productId.toString() !== productId.toString()
+    })
+    this.cart.items = updatedCartItems
+    return this.save()
+}
+
+// method.addOrder = function(){
+//     return this.
+//         getCart()
+//         .then(products => {
+//         const order = {
+//             items: products,
+//             user:{
+//                 _id: new ObjectId(this._id),
+//                 name:this.name
+//             }}
+//         this.cart.user = order
+//         return this.save()
+//         })
+// }
 
 export default mongoose.model('User',userSchema)
 
@@ -104,53 +127,6 @@ export default mongoose.model('User',userSchema)
 //                 console.log(err)
 //                 throw err
 //             })
-//     }
-
-
-//     deleteItemfromCart(productId){
-//         const updatedCartItems = this.cart.items.filter(item => {
-//             return item.productId.toString() !== productId.toString()
-//         })
-//         const db = getDb()
-//         return db
-//             .collection('users')
-//             .updateOne(
-//                 {_id: new ObjectId(this._id)},
-//                 {$set:{cart:{items:updatedCartItems}}}
-//             )
-//             .then(result => {
-//                 console.log(result)
-//             })
-//             .catch(err => {
-//                 console.log(err)
-//                 throw err
-//             })
-//     }
-
-//     addOrder(){
-//         const db = getDb()
-//         return this.getCart()
-//             .then(products => {
-//             const order = {
-//                 items: products,
-//                 user:{
-//                     _id: new ObjectId(this._id),
-//                     name:this.name
-//                 }
-//             }
-//             return db 
-//                 .collection('orders')
-//                 .insertOne(order)
-//         })        
-//         .then(result => {
-//             return db
-//                 .collection('users')
-//                 .updateOne(
-//                     {_id:new ObjectId(this._id)},
-//                     {$set:{cart:{items:[]}}}
-//                 )
-//         })
-//         .catch()
 //     }
 
 //     getOrders(){

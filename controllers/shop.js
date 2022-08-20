@@ -1,5 +1,5 @@
 import Product from '../models/product.js'
-// import Order from '../models/order'
+import Order from '../models/order.js'
 
 export const getProducts = (req, res, next) => {
   Product.find()
@@ -82,7 +82,20 @@ export const postCartDeleteProduct = (req, res, next) => {
 
 export const postOrder = (req,res,next) => {
   req.user
-    .addOrder()
+    .populate("cart.items.productId")
+    .then(user => {
+      const products = user.cart.items.map(i => {
+        return {product:i.productId._doc, quantity:i.quantity}
+      })
+      const order = new Order({
+        user:{
+          name:req.user.name,
+          userId:req.user
+        },
+        products:products
+      })
+      return order.save()
+    })
     .then(() => {
       res.redirect('/orders')
     })
