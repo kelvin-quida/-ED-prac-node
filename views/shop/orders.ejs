@@ -13,8 +13,8 @@
                             <h1># Order <%= order._id %> From User: <%= order.user.name %> </h1>
                         </li>
                         <ul>
-                            <% order.items.forEach(products =>{ %>
-                                <li>Name: <%= products.title%></li> <li>Quantity: <%= products.quantity %> %></li> 
+                            <% order.products.forEach(p =>{ %>
+                                <li>Name: <%= p.product.title%></li> <li>Quantity: <%= p.quantity %> %></li> 
                             <%})%>
                         </ul>
                     <%})%>

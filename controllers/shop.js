@@ -97,14 +97,17 @@ export const postOrder = (req,res,next) => {
       return order.save()
     })
     .then(() => {
+      req.user.clearCart()
+    })
+    .then(() => {
       res.redirect('/orders')
     })
     .catch(err => console.log(err))
 }
 
 export const getOrders = (req, res, next) => {
-  req.user
-    .getOrders()
+  Order
+    .find({"user.userId":req.user._id})
     .then((orders) => {
       res.render('shop/orders',{
         path: '/orders',
