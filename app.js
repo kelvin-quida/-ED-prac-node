@@ -6,6 +6,7 @@ import mongoose from 'mongoose';
 
 import adminRoutes from './routes/admin.js'
 import shopRoutes from './routes/shop.js'
+import authRoutes from './routes/auth.js'
 
 import {get404} from './controllers/error.js'
 import User from './models/user.js'
@@ -33,6 +34,7 @@ app.use((req,res,next) => {
 
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
+app.use(authRoutes);
 
 app.use(get404);
 

@@ -80,6 +80,23 @@ export const postCartDeleteProduct = (req, res, next) => {
     })
 };
 
+export const getOrders = (req, res, next) => {
+  Order
+    .find({"user.userId":req.user._id})
+    .then((orders) => {
+      res.render('shop/orders',{
+        path: '/orders',
+        pageTitle: 'Your Orders',
+        orders:orders
+      })
+    })
+    .catch(err => {
+      console.log(err)
+    })
+    
+};
+ 
+
 export const postOrder = (req,res,next) => {
   req.user
     .populate("cart.items.productId")
@@ -105,19 +122,3 @@ export const postOrder = (req,res,next) => {
     .catch(err => console.log(err))
 }
 
-export const getOrders = (req, res, next) => {
-  Order
-    .find({"user.userId":req.user._id})
-    .then((orders) => {
-      res.render('shop/orders',{
-        path: '/orders',
-        pageTitle: 'Your Orders',
-        orders:orders
-      })
-    })
-    .catch(err => {
-      console.log(err)
-    })
-    
-};
- 
