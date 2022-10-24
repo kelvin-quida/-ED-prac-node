@@ -30,7 +30,27 @@ export const postLogin = (req, res, next) => {
 };
 
 export const postSignup = (req,res) => {
-
+  const email = req.body.email
+  const password = req.body.password
+  const confirmPassword = req.body.confirmPassword
+  User.findOne({email:email})
+    .then((userDoc) => {
+      if (userDoc) {
+        res.redirect('/signup')
+      }
+      const user = new User({
+        email:email,
+        password:password,
+        cart:{items:[]}
+      })
+      return user.save()
+    })
+    .then(result => {
+      res.redirect('/login')
+    })
+    .catch((err) => {
+      console.log(err)
+    })
 }
 
 export const postLogout = (req, res, next) => {
