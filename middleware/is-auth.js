@@ -1,5 +1,5 @@
 export default function(req,res,next){
-    if(!req.session.isLoggedin){
+    if(!req.session.isLoggedIn){
         return res.redirect('/login')
     }
     next()
