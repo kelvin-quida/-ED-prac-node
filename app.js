@@ -4,6 +4,7 @@ import path from 'path'
 import dotenv from 'dotenv'
 import mongoose from 'mongoose';
 import session from 'express-session'
+import flash from 'connect-flash'
 
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
@@ -41,6 +42,8 @@ app.use(
         saveUninitialized:false,
         store:store
     }))
+
+app.use(flash())
 
 app.use((req,res,next) => {
     if (!req.session.user){
