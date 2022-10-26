@@ -2,10 +2,12 @@ import User from "../models/user.js"
 import bcrypt from "bcryptjs";
 import nodemailer from 'nodemailer'
 import sendgridTransport from "nodemailer-sendgrid-transport";
+import crypto from 'crypto'
+import user from "../models/user.js";
 
 const transporter = nodemailer.createTransport(sendgridTransport({
   auth:{
-    api_key:'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'
+  api_key:`${process.env.SENDPASS}`
   }
 }))
 
@@ -37,7 +39,22 @@ export const getSignup = (req,res) => {
     errorMessage:message
   })
 };
-   
+
+export const getReset = (req,res) => {
+  let message = req.flash('error')
+  if (message.length > 0){
+    message = message[0]
+  }else{
+    message = null
+  }
+  res.render('auth/reset',{
+    path: '/reset',
+    pageTitle: 'Reset Password',
+    isAuthenticated:false,
+    errorMessage:message
+  })
+}
+
 export const postLogin = (req, res, next) => {
   const email = req.body.email
   const password = req.body.password
@@ -113,3 +130,40 @@ export const postLogout = (req, res, next) => {
     res.redirect('/')
   })
 }
+
+export const postReset = (req,res) => {
+  crypto.randomBytes(32,(err,buffer) =>{
+    if(err){
+      console.log(err)
+      return res.redirect('/reset')
+    }
+    const token = buffer.toString('hex')
+    user
+      .findOne({email:req.body.email})
+      .then(user => {
+        if(!user){
+          req.flash('error','No account with that email found.')
+          return res.redirect('/reset')
+        }
+        user.resetToken = token
+        user.resetTokenExpiration = Date.now() + 3600000
+        return user.save()
+      })
+      .then(result => {
+        res.redirect('/')
+        transporter.sendMail({
+          to:req.body.email,
+          from:'kelvinquida24@gmail.com',
+          subject: 'Password Reset',
+          html:`
+            <p>You requested a password reset</p>
+            <p>Click this <a href="http://localhost:3000/reset/${token}">Link</a> to set a new passoword></p>
+          `
+        })
+      })
+      .catch(err => {
+        console.log(err)
+      })
+  })
+}
+ 
