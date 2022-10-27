@@ -1,9 +1,10 @@
 import Product from '../models/product.js';
 import mongodb from 'mongodb'
+import product from '../models/product.js';
 
 export const getProducts = (req, res, next) => {
   Product
-  .find()
+  .find({userId:req.user._id})
   // .select('title price')
   // .populate('userId','name')
   .then(products => {
@@ -85,25 +86,26 @@ export const postEditProduct = (req, res, next) => {
   const updatedDesc = req.body.description;
   
   Product
-    .findByIdAndUpdate(prodId,{
-      $set:{
-        title:updatedTitle,
-        price:updatedPrice,
-        imageUrl:updatedImageUrl,
-        description:updatedDesc  
-      }
-    })
-    .then(result => {
-      console.log("SUCCESSFULLY UPDATED!")
-      res.redirect('/admin/products');
-    })
+    .findById(prodId)
+      .then(product => {
+        if(product.userId.toString() == req.user._id.toString()){
+          product.title=updatedTitle
+          product.price=updatedPrice
+          product.imageUrl=updatedImageUrl
+          product.descriptionupdatedDesc
+          return product.save().then(result => {
+            console.log("SUCCESSFULLY UPDATED!")
+            res.redirect('/admin/products');
+          })
+        }
+      })
     .catch(err => console.log(err))
 };
 
 export const postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
   Product
-    .deleteOne({_id:prodId})
+    .deleteOne({_id:prodId, userId:req.user._id})
     .then(result => {
       console.log("SUCCESSFULLY DESTROYED")
       return res.redirect("/admin/products")
