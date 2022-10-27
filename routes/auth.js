@@ -1,5 +1,5 @@
 import {Router} from 'express'
-import { getLogin,postLogin,postLogout,getSignup,postSignup,getReset,postReset } from '../controllers/auth.js'
+import { getLogin,postLogin,postLogout,getSignup,postSignup,getReset,postReset,getNewPassword, postNewPassword } from '../controllers/auth.js'
 
 const router = Router()
 
@@ -8,6 +8,10 @@ router.get('/login',getLogin)
 router.get('/signup',getSignup)
 
 router.get('/reset',getReset)
+
+router.get('/reset/:token',getNewPassword)
+
+router.post('/new-password',postNewPassword)
 
 router.post('/reset',postReset)
 
