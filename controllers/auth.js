@@ -4,6 +4,7 @@ import nodemailer from 'nodemailer'
 import sendgridTransport from "nodemailer-sendgrid-transport";
 import crypto from 'crypto'
 import user from "../models/user.js";
+import {validationResult} from 'express-validator'
 
 
 const transporter = nodemailer.createTransport(sendgridTransport({
@@ -91,6 +92,16 @@ export const postSignup = (req,res) => {
   const email = req.body.email
   const password = req.body.password
   const confirmPassword = req.body.confirmPassword
+  const errors = validationResult(req)
+  if(!errors.isEmpty()){
+    console.log(errors.array())
+    return res.status(422).render('auth/signup',{
+      path:'/signup',
+      pageTitle:'Signup',
+      isAuthenticated:false,
+      errorMessage:errors.array()[0].msg
+    })
+  }
   User.findOne({email:email})
     .then(userDoc => {
       if (userDoc) {
