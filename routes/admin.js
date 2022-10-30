@@ -15,7 +15,7 @@ router.get('/add-product',isAuth, getAddProduct);
 router.post('/add-product',
     [
         body('title')
-            .isAlphanumeric()
+            .isString()
             .isLength({min:3})
             .trim(),
         body('imageUrl')

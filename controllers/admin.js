@@ -104,10 +104,30 @@ export const getEditProduct = (req, res, next) => {
 export const postEditProduct = (req, res, next) => {
   const prodId = req.body.productId
   const updatedTitle = req.body.title;
-  const updatedPrice = req.body.price;
   const updatedImageUrl = req.body.imageUrl;
+  const updatedPrice = req.body.price;
   const updatedDesc = req.body.description;
   
+  const errors = validationResult(req)
+
+  if(!errors.isEmpty()){
+    return res.status(422).render('admin/edit-product', {
+      pageTitle: 'Edir Product',
+      path: '/admin/edit-product',
+      editing: true,
+      hasError:true,
+      product: {
+        title:updatedTitle,
+        imageUrl:updatedImageUrl,
+        price:updatedPrice,
+        description:updatedDesc,
+        _id:prodId
+      },
+      errorMessage: errors.array()[0].msg,
+      isAuthenticated: req.session.isLoggedIn
+    })
+  }
+
   Product
     .findById(prodId)
       .then(product => {
