@@ -1,6 +1,7 @@
 import Product from '../models/product.js';
 import mongodb from 'mongodb'
 import product from '../models/product.js';
+import { validationResult } from 'express-validator';
 
 export const getProducts = (req, res, next) => {
   Product
@@ -27,6 +28,8 @@ export const getAddProduct = (req, res, next) => {
     pageTitle: 'Add Product',
     path: '/admin/add-product',
     editing: false,
+    hasError:false,
+    errorMessage:null,
     isAuthenticated: req.session.isLoggedIn
   });
 };
@@ -36,6 +39,24 @@ export const postAddProduct = (req, res, next) => {
   const price = req.body.price;
   const description = req.body.description;
   const imageUrl = req.body.imageUrl;
+  const errors = validationResult(req)
+
+  if(!errors.isEmpty()){
+    return res.status(422).render('admin/edit-product', {
+      pageTitle: 'Add Product',
+      path: '/admin/edit-product',
+      editing: false,
+      hasError:true,
+      product: {
+        title:title,
+        imageUrl:imageUrl,
+        price:price,
+        description:description
+      },
+      errorMessage: errors.array()[0].msg,
+      isAuthenticated: req.session.isLoggedIn
+    })
+  }
   const product = new Product({
     title:title,
     price:price,
@@ -72,6 +93,8 @@ export const getEditProduct = (req, res, next) => {
       path: '/admin/edit-product',
       editing: editMode,
       product: product,
+      hasError:false,
+      errorMessage: null,
       isAuthenticated: req.session.isLoggedIn
     })
   })
