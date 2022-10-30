@@ -5,7 +5,9 @@ import sendgridTransport from "nodemailer-sendgrid-transport";
 import crypto from 'crypto'
 import user from "../models/user.js";
 import {validationResult} from 'express-validator'
+import dotenv from 'dotenv'
 
+dotenv.config()
 
 const transporter = nodemailer.createTransport(sendgridTransport({
   auth:{
@@ -24,9 +26,76 @@ export const getLogin = (req, res, next) => {
       path: '/login',
       pageTitle: 'Login',
       isAuthenticated:false,
-      errorMessage:message
+      errorMessage:message,
+      oldInput:{
+        email:'',
+        password: ''
+      }
     });
 }
+
+export const postLogin = (req, res, next) => {
+  const email = req.body.email;
+  const password = req.body.password;
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).render('auth/login', {
+      path: '/login',
+      pageTitle: 'Login',
+      errorMessage: errors.array()[0].msg,
+      oldInput: {
+        email: email,
+        password: password
+      },
+      validationErrors: errors.array()
+    });
+  }
+
+  User.findOne({ email: email })
+    .then(user => {
+      if (!user) {
+        return res.status(422).render('auth/login', {
+          path: '/login',
+          pageTitle: 'Login',
+          errorMessage: 'Invalid email or password.',
+          oldInput: {
+            email: email,
+            password: password
+          },
+          validationErrors: []
+        });
+      }
+      bcrypt
+        .compare(password, user.password)
+        .then(doMatch => {
+          if (doMatch) {
+            req.session.isLoggedIn = true;
+            req.session.user = user;
+            return req.session.save(err => {
+              console.log(err);
+              res.redirect('/');
+            });
+          }
+          return res.status(422).render('auth/login', {
+            path: '/login',
+            pageTitle: 'Login',
+            errorMessage: 'Invalid email or password.',
+            oldInput: {
+              email: email,
+              password: password
+            },
+            validationErrors: []
+          });
+        })
+        .catch(err => {
+          console.log(err);
+          res.redirect('/login');
+        });
+    })
+    .catch(err => console.log(err));
+};
+
 export const getSignup = (req,res) => {
   let message = req.flash('error')
   if (message.length > 0){
@@ -38,9 +107,64 @@ export const getSignup = (req,res) => {
     path:'/signup',
     pageTitle:'Signup',
     isAuthenticated:false,
-    errorMessage:message
+    errorMessage:message,
+    oldInput:{
+      email:'',
+      password:'',
+      confirmPassword:''
+    }
   })
 };
+
+export const postSignup = (req,res) => {
+  const email = req.body.email
+  const password = req.body.password
+  const confirmPassword = req.body.confirmPassword
+  const errors = validationResult(req)
+  if(!errors.isEmpty()){
+    console.log(errors.array())
+    return res.status(422).render('auth/signup',{
+      path:'/signup',
+      pageTitle:'Signup',
+      isAuthenticated:false,
+      errorMessage:errors.array()[0].msg,
+      oldInput :{
+        email:email,
+        password:password,
+        confirmPassword:confirmPassword
+      }
+    })
+  }
+  bcrypt
+    .hash(password,12)
+    .then(hashedPassword => {
+      const user = new User({
+        email:email,
+        password:hashedPassword,
+        cart:{items:[]}
+      })
+      return user.save()
+    })
+    .then(result => {
+      res.redirect('/login')
+      return transporter.sendMail({
+        to:email,
+        from:'kelvinquida24@gmail.com',
+        subject: 'Signup succeeded',
+        html:'<h1> You sucessfully signed up!</h1>'
+      })
+    })
+    .catch(err =>{
+      console.log(err)
+    })
+}
+
+export const postLogout = (req, res, next) => {
+  req.session.destroy((err) => {
+    console.log(err)
+    res.redirect('/')
+  })
+}
 
 export const getReset = (req,res) => {
   let message = req.flash('error')
@@ -54,92 +178,6 @@ export const getReset = (req,res) => {
     pageTitle: 'Reset Password',
     isAuthenticated:false,
     errorMessage:message
-  })
-}
-
-export const postLogin = (req, res, next) => {
-  const email = req.body.email
-  const password = req.body.password
-  User.findOne({email:email})
-      .then(user => {
-        if (!user) {
-          req.flash('error','Invalid email or password')
-          return res.redirect('/login')
-        }
-        bcrypt
-          .compare(password,user.password)
-          .then(doMatch => {
-            if (doMatch){
-              req.session.isLoggedIn = true
-              req.session.user = user
-              return req.session.save(err => {
-                console.log(err)
-                res.redirect('/')
-              })
-            }
-            req.flash('error','Invalid email or password')
-            res.redirect('/login')
-          })
-          .catch(err => {
-            console.log(err)
-            res.redirect('/login')
-          })
-        })
-        .catch(err => console.log(err))
-}
-
-export const postSignup = (req,res) => {
-  const email = req.body.email
-  const password = req.body.password
-  const confirmPassword = req.body.confirmPassword
-  const errors = validationResult(req)
-  if(!errors.isEmpty()){
-    console.log(errors.array())
-    return res.status(422).render('auth/signup',{
-      path:'/signup',
-      pageTitle:'Signup',
-      isAuthenticated:false,
-      errorMessage:errors.array()[0].msg
-    })
-  }
-  User.findOne({email:email})
-    .then(userDoc => {
-      if (userDoc) {
-        req.flash('error','Email exists already')
-        return res.redirect('/signup')
-      }
-      return bcrypt
-        .hash(password,12)
-        .then(hashedPassword => {
-          const user = new User({
-            email:email,
-            password:hashedPassword,
-            cart:{items:[]}
-          })
-          return user.save()
-        })
-        .then(result => {
-          res.redirect('/login')
-          return transporter.sendMail({
-            to:email,
-            from:'kelvinquida24@gmail.com',
-            subject: 'Signup succeeded',
-            html:'<h1> You sucessfully signed up!</h1>'
-          })
-        })
-        .catch(err =>{
-          console.log(err)
-        })
-    })
-    .catch((err) => {
-      console.log(err)
-    })
-}
-
-export const postLogout = (req, res, next) => {
-  req.session.destroy((err) => {
-    console.log(err)
-    res.redirect('/')
   })
 }
 
