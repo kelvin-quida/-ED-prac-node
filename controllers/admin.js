@@ -71,7 +71,9 @@ export const postAddProduct = (req, res, next) => {
       res.redirect("/admin/products")
     })
     .catch(err => {
-      console.log(err);
+      error = new Error(err)
+      error.httpStatusCode = 500
+      return next(error)
     })
 };
 
@@ -98,7 +100,11 @@ export const getEditProduct = (req, res, next) => {
       isAuthenticated: req.session.isLoggedIn
     })
   })
-  .catch(err => console.log(err))
+  .catch(err => {
+    error = new Error(err)
+    error.httpStatusCode = 500
+    return next(error)
+  })
 };
 
 export const postEditProduct = (req, res, next) => {
@@ -142,7 +148,11 @@ export const postEditProduct = (req, res, next) => {
           })
         }
       })
-    .catch(err => console.log(err))
+      .catch(err => {
+        error = new Error(err)
+        error.httpStatusCode = 500
+        return next(error)
+      })
 };
 
 export const postDeleteProduct = (req, res, next) => {
@@ -154,6 +164,8 @@ export const postDeleteProduct = (req, res, next) => {
       return res.redirect("/admin/products")
     })
     .catch(err => {
-      console.log(err)
+      error = new Error(err)
+      error.httpStatusCode = 500
+      return next(error)
     })
 };
