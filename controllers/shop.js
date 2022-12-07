@@ -1,5 +1,5 @@
 import Product from '../models/product.js'
-import Order from '../models/order.js'
+import Order from '../models/Order.js'
 
 export const getProducts = (req, res, next) => {
   Product.find()
